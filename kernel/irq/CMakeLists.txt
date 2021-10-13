@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.14)
+
+add_library(${PROJECT_NAME}-irq OBJECT
+        timer.c
+	ipi.c
+)

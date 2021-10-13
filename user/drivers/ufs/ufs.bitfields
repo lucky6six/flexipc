@@ -1,0 +1,441 @@
+// Standard register map for UFSHCI
+
+// Start End Name // Description
+
+bitfields regmap {
+
+  // Host Capabilities
+  [00h 03h] CAP => {
+    31:29 RO Reserved
+    28 RO CS // Crypto Support (CS)
+    27 RO Reserved // for Unified Memory Extension
+    26 RO UICDMETMS // UIC DME_TEST_MODE command supported (UICDMETMS)
+    25 RO OODDS // Out of order data delivery supported (OODDS)
+    24 RO 64AS // 64-bit addressing supported (64AS)
+    23 RO AUTOH8 // Auto-Hibernation Support (AUTOH8)
+    22:19 RO Reserved
+    18:16 RO NUTMRS // Number of UTP Task Management Request Slots (NUTMRS)
+    15:08 RO NORTT // Number of outstanding READY TO TRANSFER (RTT) requests supported (NORTT)
+    07:05 RO Reserved
+    04:00 RO NUTRS // Number of UTP Transfer Request Slots (NUTRS)
+  } // Host Controller Capabiities
+  [04h 07h] => {
+  }
+  [08h 0Bh] VER => {
+    31:16 RO Reserved
+    15:08 RO MJR // Major Version Number (MJR): Major version in BCD format
+    07:04 RO MNR // Minor Version Number (MNR): Minor version in BCD format
+    03:00 RO VS  // Version Suffix (VS): Version suffix in BCD format
+  } // UFS Version
+  [0Ch 0Fh] => {
+  }
+  [10h 13h] HCPID => {
+    31:00 RO PID // Product ID (PID)
+  } // Host Controller Identification Descriptor – Device ID and Device Class
+  [14h 17h] HCMID => {
+    31:16 RO Reserved
+    15:08 RO BI // Bank Index (BI)
+    07:00 RO MIC // Manufacturer Identification Code (MIC)
+  } // Host Controller Identification Descriptor – Product ID and Manufacturer ID
+  [18h 1Bh] AHIT => {
+    31:13 RO Reserved
+    12:10 RW TS // Timer scale(TS)
+    09:00 RW AH8ITV // Auto-Hibern8 Idle Timer Value (AH8ITV)
+  } // Auto-Hibernate Idle Timer
+  [1Ch 1Fh] => {
+  } // Reserved
+
+  // Operation and Runtime
+  [20h 23h] IS => {
+    31:19 RO Reserved
+    18 RWC CEFES // Crypto Engine Fatal Error Status (CEFES)
+    17 RWC SBFES // System Bus Fatal Error Status (SBFES)
+    16 RWC HCFES // Host Controller Fatal Error Status (HCFES)
+    15:13 RO Reserved
+    12 RWC UTPES // UTP Error Status (UTPES)
+    11 RWC DFES // Device Fatal Error Status (DFES)
+    10 RWC UCCS // UIC Command Completion Status (UCCS)
+    09 RWC UTMRCS // UTP Task Management Request Completion Status (UTMRCS)
+    08 RWC ULSS // UIC Link Startup Status (ULSS)
+    07 RWC ULLS // UIC Link Lost Status (ULLS)
+    06 RWC UHES // UIC Hibernate Enter Status (UHES)
+    05 RWC UHXS // UIC Hibernate Exit Status (UHXS)
+    04 RWC UPMS // UIC Power Mode Status (UPMS)
+    03 RWC UTMS // UIC Test Mode Status (UTMS)
+    02 RWC UE // UIC Error (UE)
+    01 RWC UDEPRI // UIC DME_ENDPOINTRESET Indication(UDEPRI)
+    00 RWC UTRCS // UTP Transfer Request Completion Status (UTRCS)
+  } // Interrupt Status
+  [24h 27h] IE => {
+    31:19 RO Reserved
+    18 RW CEFEE // Crypto Engine Fatal Error Enable (CEFEE)
+    17 RW SBFEE // System Bus Fatal Error Enable (SBFEE)
+    16 RW HCFEE // Host Controller Fatal Error Enable (HCFEE)
+    15:13 RO Reserved
+    12 RW UTPEE // UTP Error Enable (UTPEE)
+    11 RW DFEE // Device Fatal Error Enable (DFEE)
+    10 RW UCCE // UIC COMMAND Completion Enable (UCCE)
+    09 RW UTMRCE // UTP Task Management Request Completion Enable (UTMRCE)
+    08 RW ULSSE // UIC Link Startup Status Enable (ULSSE)
+    07 RW ULLSE // UIC Link Lost Status Enable (ULLSE)
+    06 RW UHESE // UIC Hibernate Enter Status Enable (UHESE)
+    05 RW UHXSE // UIC Hibernate Exit Status Enable (UHXSE)
+    04 RW UPMSE // UIC Power Mode Status Enable (UPMSE)
+    03 RW UTMSE // UIC Test Mode Status Enable (UTMSE)
+    02 RW UEE // UIC Error Enable (UEE)
+    01 RW UDEPRIE // UIC DME_ENDPOINTRESET (UDEPRIE)
+    00 RW UTRCE // UTP Transfer Request Completion Enable (UTRCE)
+  } // Interrupt Enable
+  [28h 2Fh] => {
+  }
+  [30h 33h] HCS => {
+    /// HCS
+    31:24 RO TLUNUTPE // Target LUN of UTP error (TLUNUTPE)
+    23:16 RO TTAGUTPE // Task Tag of UTP error (TTAGUTPE)
+    15:12 RO UTPEC // UTP Error Code (UTPEC)
+    11 RO Reserved
+    10:08 RO UPMCRS // UIC Power Mode Change Request Status (UPMCRS)
+    #define HCS_PWR_OK     0 /* The request was accepted. */
+    #define HCS_PWR_LOCAL  1 /* The local request was successfully applied. */
+    #define HCS_PWR_REMOTE 2 /* The remote request was successfully applied. */
+    #define HCS_PWR_BUSY   3 /* The request was aborted due to concurrent requests. */
+    #define HCS_PWR_ERROR_CAP 4 /* The request was rejected because the requested configuration exceeded the Link’s capabilities. */
+    #define HCS_PWR_FATAL_ERROR 5 /* The request was aborted due to a communication problem. The Link may be inoperable. */
+    07:04 RO Reserved
+    03 RO UCRDY // UIC COMMAND Ready (UCRDY)
+    02 RO UTMRLRDY // UTP Task Management Request List Ready (UTMRLRDY)
+    01 RO UTRLRDY // UTP Transfer Request List Ready (UTRLRDY)
+    00 RO DP // Device Present (DP)
+  } // Host Controller Status
+  [34h 37h] HCE => {
+    /// HCE
+    31:02 RO Reserved
+    01 RW CGE // Crypto General Enable (CGE)
+    00 RW HCE // Host Controller Enable (HCE)
+  } // Host Controller Enable
+  [38h 3Bh] UECPA => {
+    31:31 ROC ERR // UIC PHY AdapterA Layer Error (ERR)
+    30:05 RO Reserved
+    04:00 ROC EC // UIC PHY Adapter Layer Error Code (EC)
+  } // Host UIC Error Code PHY Adapter Layer
+  [3Ch 3Fh] UECDL => {
+    31 ROC ERR // UIC Data Link Layer Error (ERR)
+    30:15 RO Reserved
+    14:00 ROC EC // UIC Data Link Layer Error Code (EC)
+    #define UECDL_EC_NAC_RECEIVED                 0
+    #define UECDL_EC_TCx_REPLAY_TIMER_EXPIRED     1
+    #define UECDL_EC_AFCx_REQUEST_TIMER_EXPIRED   2
+    #define UECDL_EC_FCx_PROTECTION_TIMER_EXPIRED 3
+    #define UECDL_EC_CRC_ERROR                    4
+    #define UECDL_EC_RX_BUFFER_OVERFLOW           5
+    #define UECDL_EC_MAX_FRAME_LENGTH_EXCEEDED    6
+    #define UECDL_EC_WRONG_SEQUENCE_NUMBER        7
+    #define UECDL_EC_AFC_FRAME_SYNTAX_ERROR       8
+    #define UECDL_EC_NAC_FRAME_SYNTAX_ERROR       9
+    #define UECDL_EC_EOF_SYNTAX_ERROR            10
+    #define UECDL_EC_FRAME_SYNTAX_ERROR          11
+    #define UECDL_EC_BAD_CTRL_SYMBOL_TYPE        12
+    #define UECDL_EC_PA_INIT_ERROR               13
+    #define UECDL_EC_PA_ERROR_IND_RECEIVED       14
+  } // Host UIC Error Code Data Link Layer
+
+  [40h 43h] UECN => {
+    31 ROC ERR // UIC Network Layer Error (ERR)
+    30:03 RO Reserved
+    02:00 ROC EC // UIC Network Layer Error Code (EC)
+    #define UECN_EC_UNSUPPORTED_HEADER_TYPE   0
+    #define UECN_EC_BAD_DEVICEID_ENC          1
+    #define UECN_EC_LHDR_TRAP_PACKET_DROPPING 2
+  } // Host UIC Error Code Network Layer
+  [44h 47h] UECT => {
+    31 ROC ERR // UIC Transport Layer Error (ERR)
+    30:07 RO Reserved
+    06:00 ROC EC // UIC Transport Layer Error Code (EC)
+    #define UECT_EC_UNSUPPORTED_HEADER_TYPE     0
+    #define UECT_EC_UNKNOWN_CPORTID             1
+    #define UECT_EC_NO_CONNECTION_RX            2
+    #define UECT_EC_CONTROLLED_SEGMENT_DROPPING 3
+    #define UECT_EC_BAD_TC                      4
+    #define UECT_EC_E2E_CREDIT_OVERFLOW         5
+    #define UECT_EC_SAFETY_VALVE_DROPPING       6
+  } // Host UIC Error Code Transport Layer
+
+  [48h 4Bh] UECDME => {
+    31 ROC ERR // UIC DME Error (ERR)
+    30:01 RO Reserved
+    00 ROC EC // UIC DME Error Code (EC)
+  } // Host UIC Error Code DME
+
+  [4Ch 4Fh] UTRIACR => {
+    31 RW IAEN // Interrupt Aggregation Enable/Disable (IAEN)
+    30:25 RO Reserved
+    24 WO IAPWEN // Interrupt aggregation parameter write enable (IAPWEN)
+    23:21 RO Reserved
+    20 RO IASB // Interrupt aggregation status bit (IASB)
+    19:17 RO Reserved
+    16 WO CTR // Counter and Timer Reset(CTR)
+    15:13 RO Reserved
+    12:8 RW IACTH // Interrupt aggregation counter threshold (IACTH)
+    7:0 RW IATOVAL // Interrupt aggregation timeout value (IATOVAL)
+  } // UTP Transfer Request Interrupt Aggregation Control Register
+
+  // UTP Transfer
+  [50h 53h] UTRLBA => {
+    31:10 RW UTRLBA // UTP Transfer Request List Base Address (UTRLBA)
+    09:00 RO Reserved
+  } // UTP Transfer Request List Base Address
+
+  [54h 57h] UTRLBAU => {
+    31:00 RW UTRLBAU // UTP Transfer Request List Base Address Upper (UTRLBAU)
+  } // UTP Transfer Request List Base Address Upper 32-Bits
+
+  [58h 5Bh] UTRLDBR => {
+    31:00 RWS UTRLDBR // UTP Transfer Request List Door bell Register (UTRLDBR)
+  } // UTP Transfer Request List Door Bell Register
+
+  [5Ch 5Fh] UTRLCLR => {
+    31:00 WO UTRLCLR // UTP Transfer Request List CLear Register (UTRLCLR)
+  } // UTP Transfer Request List CLear Register
+
+  [60h 63h] UTRLRSR => {
+    31:01 RO Reserved
+    0 RW UTRLRSR // UTP Transfer Request List Run-Stop Register (UTRLRSR)
+  } // UTP Transfer Request Run-Stop Register
+
+  [64h 67h] UTRLCNR => {
+    31:0 RWC UTRLCNR // UTP Transfer Request List Completion Notification Register (UTRLCNR)
+  } // UTP Transfer Request List Completion Notification Register
+  [68h 6Fh] => {
+  }
+
+  // UTP Task Management
+  [70h 73h] UTMRLBA => {
+    31:10 RW UTMRLBA // UTP Task Management Request List Base Address (UTMRLBA)
+    09:00 RO Reserved
+  } // UTP Task Management Request List Base Address
+
+  [74h 77h] UTMRLBAU => {
+    31:00 RW UTMRLBAU // UTP Task Management Request List Base Address (UTMRLBAU)
+  } // UTP Task Management Request List Base Address Upper 32-Bits
+
+  [78h 7Bh] UTMRLDBR => {
+    31:08 RO Reserved
+    07:00 RWS UTMRLDBR // UTP Task Management Request List Door bell Register (UTMRLDBR)
+  } // UTP Task Management Request List Door Bell Register
+
+  [7Ch 7Fh] UTMRLCLR => {
+    31:08 RO Reserved
+    07:00 WO UTMRLCLR // UTP Task Management List CLear Register (UTMRLCLR)
+  } // UTP Task Management Request List CLear Register
+  [80h 83h] UTMRLRSR => {
+    31:01 RO Reserved
+    0 RW UTMRLRSR // UTP Task Management Request List Run-Stop Register (UTMRLRSR)
+  } // UTP Task Management Run-Stop Register
+  [84h 8Fh] => {
+  }
+
+  // UIC Command
+  [90h 93h] UICCMD => {
+    31:08 RO Reserved
+    07:00 RW CMDOP // Command Opcode (CMDOP)
+    #define UICCMD_CMDOP_DME_GET      0x1
+    #define UICCMD_CMDOP_DME_SET      0x2
+    #define UICCMD_CMDOP_DME_PEER_GET 0x3
+    #define UICCMD_CMDOP_DME_PEER_SET 0x4
+    #define UICCMD_CMDOP_DME_POWERON  0x10
+    #define UICCMD_CMDOP_DME_POWEROFF 0x11
+    #define UICCMD_CMDOP_DME_ENABLE   0x12
+    #define UICCMD_CMDOP_DME_REST     0x14
+    #define UICCMD_CMDOP_DME_ENDPOINTRESET 0x15
+    #define UICCMD_CMDOP_DME_LINKSTARTUP   0x16
+    #define UICCMD_CMDOP_DME_HIBERNATE_ENTER 0x17
+    #define UICCMD_CMDOP_DME_HIBERNATE_EXIT  0x18
+    #define UICCMD_CMDOP_DME_TEST_MODE       0x1a
+  } // UIC Command Register
+  [94h 97h] UCMDARG1 => {
+    31:00 RW ARG1 // Argument 1 (ARG1)
+    15:00 RW GenSelectorIndex
+    31:16 RW MIBattribute
+    07:00 RW ResetLevel
+  } // UIC Command Argument 1
+  [98h 9Bh] UCMDARG2 => {
+    31:00 RW ARG2 // Argument 2 (ARG2)
+    07:00 RW ConfigResultCode
+    07:00 RW GenericErrorCode
+    23:16 RW AttrSetType
+    #define UICCMD_CRC_SUCCESS 0x00
+    #define UICCMD_CRC_INVALID_MIB_ATTRIBUTE 0x01
+    #define UICCMD_CRC_INVALID_MIB_ATTRIBUTE_VALUE 0x02
+    #define UICCMD_CRC_READ_ONLY_MIB_ATTRIBUTE 0x03
+    #define UICCMD_CRC_WRITE_ONLY_MIB_ATTRIBUTE 0x04
+    #define UICCMD_CRC_BAD_INDEX 0x05
+    #define UICCMD_CRC_LOCKED_MIB_ATTRIBUTE 0x06
+    #define UICCMD_CRC_BAD_TEST_FEATURE_INDEX 0x07
+    #define UICCMD_CRC_PEER_COMMUNICATION_FAILURE 0x08
+    #define UICCMD_CRC_BUSY 0x09
+    #define UICCMD_CRC_DME_FAILURE 0x0A
+    #define UICCMD_GEC_SUCCESS 0
+    #define UICCMD_GEC_FAILURE 1
+  } // UIC Command Argument 2
+  [9Ch 9Fh] UCMDARG3 => {
+    31:00 RW ARG3 // Argument 3 (ARG3)
+    31:00 RW MIBvalue_R
+    31:00 RW MIBvalue_W
+  } // UIC Command Argument 3
+  [A0h AFh] => {
+  }
+
+  // UMA
+  [B0h BFh] => {
+  } // Reserved for Unified Memory Extension
+
+  // Vendor Specific
+  [C0h FFh] => {
+  } // Vendor Specific Registers
+
+  // Crypto
+  [100h 103h] CCAP => {
+    // Crypto not supported yet
+  } // Crypto Capability
+}
+
+
+bitfields utp_txfr_reqdes {
+  [0h 3h] => {
+    31:28 RW CT // Command Type (always 01h)
+    26:25 RW DD // Data Direction
+    #define TXFR_DD_NONDATA       0
+    #define TXFR_DD_SYSMEM_TO_DEV 1
+    #define TXFR_DD_DEV_TO_SYSMEM 2
+    24 RW I // Iterrupt
+    23 RW CE // Crypto Enable
+    07:00 RW CCI // Crypto Configuration Index
+  }
+  [4h 7h] => {
+    31:0 RW DUNL // Data Unit Number Lower 32 bits
+  }
+  [8h bh] => {
+    07:00 RW OCS // Overall Command Status
+  }
+  [ch fh] => {
+    31:0 RW DUNU // Data Unit Number Upper 32 bits
+  }
+  [10h 13h] => {
+    31:07 RW UCDBA // UTP Command Descriptor Base Address
+  }
+  [14h 17h] => {
+    31:00 RW UCDBAU // UTP Command Descriptor Base Address Upper 32-bits
+  }
+  [18h 1bh] => {
+    31:16 RW RUO // Response UPIU Offset
+    15:00 RW RUL // Response UPIU Length
+  }
+  [1ch 1fh] => {
+    31:16 RW PRDTO // PRDT Offset
+    15:00 RW PRDTL // PRDT Length
+  }
+}
+
+bitfields phys_region_des {
+  [0h 3h] => {
+    31:02 RW DBA // Data Base Address
+  }
+  [4h 7h] => {
+    31:00 RW DBAU // Data Base Adderss Upper 32-bits
+  }
+  [8h bh] => {
+  }
+  [ch fh] => {
+    17:00 RW DBC // Data Byte Count
+    1:0 RW GRAN // Granularity, should be 0b11
+  }
+}
+
+bitfields utp_tskmgmt_reqdes {
+  [0h 3h] => {
+    24:24 RW I // Interrupt
+  }
+  [4h 7h] => {
+  }
+  [8h bh] => {
+    8:0 RW OCS // Overall Command Status
+  }
+  [ch fh] => {
+  }
+  [10h 2fh] => {
+  } // Task Management Request UPIU
+  [30h 4fh] => {
+  } // Task Management Response UPIU
+}
+
+///*-
+// * UFS Transport Protocol (UTP) Layer.
+// *
+// * Terminologies:
+// * UPIU: UFS Protocol Information Units, which seems like a universial format
+// * for messages.
+// * LUN: Logical Unit Number
+// * CDB: Command Descriptor Blocks
+// */
+
+bitfields upiu_header {
+    [00h 00h] TxnType => {
+        // Txn direction towards device
+        #define UPIU_TXN_NOP_OUT     0
+        #define UPIU_TXN_COMMAND     1
+        #define UPIU_TXN_DATA_OUT    2
+        #define UPIU_TXN_TSKMGMT_REQ 4
+        #define UPIU_TXN_QUERY_REQ   0x16
+        // Txn direction from device
+        #define UPIU_TXN_NOP_IN      0x20
+        #define UPIU_TXN_RESPONSE    0x21
+        #define UPIU_TXN_DATA_IN     0x22
+        #define UPIU_TXN_TSKMGMT_REP 0x24
+        #define UPIU_TXN_RTT         0x31 /* Ready to Response */
+        #define UPIU_TXN_QUERY_REP   0x36
+        #define UPIU_TXN_REJECT      0x3f
+        5:0 RW txncode // Transaction code
+        6 RW DD // Whether end-to-end CRC of data segment is included
+        6 RW HD // Whether end-to-end CRC of all header segements are included
+    }
+    [01h 01h] Flags => {
+        #define UPIU_TSKATTR_SIMPLE 0
+        #define UPIU_TSKATTR_ORDERED 1
+        #define UPIU_TSKATTR_HEADOFQ 2 /* Head of Queue */
+        #define UPIU_TSKATTR_ACA     3 /* Not Used */
+
+        1:0 RW ATTR
+        #define UPIU_CP_NO_PRIORITY 0
+        #define UPIU_CP_HI_PRIORITY 1
+        2 RW CP // Command priority
+        4 RW D
+        5 RW W
+        5 RW U
+        6 RW R
+        6 RW O
+    }
+    [02h 02h] LUN => {
+    }
+    [03h 03h] TskTag => {
+    }
+    [04h 04h] => {
+        7:4 RW IID // Initiator ID
+        #define UPIU_COMMAND_SET_SCSI 0
+        #define UPIU_COMMAND_SET_UFS  1
+        3:0 RW CmdSet // Command Set Type
+    }
+    [05h 05h] Function => {
+    }
+    [06h 06h] Response => {
+        #define UPIU_REP_SUCCESS 0
+        #define UPIU_REP_FAILURE 1
+    }
+    [07h 07h] Status => {
+    }
+    [08h 08h] TotEHSLen => {
+    } // Total Extra Header Segement Length in 32-bit units
+    [09h 09h] DevInfo => {
+    }
+    [ah bh] DataSegLen => {
+    }
+}

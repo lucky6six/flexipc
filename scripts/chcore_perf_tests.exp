@@ -1,0 +1,71 @@
+#!/usr/bin/expect -f
+
+source [file join [file dirname $argv0] libtest.tcl]
+
+set timeout 30
+
+# XXX: Don't know x86 or aarch64 (we can update simulate script)
+spawn bash -c "./build/simulate.sh | ./scripts/format_output.py"
+
+# Run boot and print error msg
+if {[catch boot errmsg]} {
+    puts $errmsg
+    exit -1
+}
+
+sleep 3
+
+# Run Perf Tests
+send "perf_syscall.bin\n"
+expect {
+        "cycles" {
+                # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+send "perf_cs.bin\n"
+expect {
+         "cycles" {
+                # success
+        }
+        timeout {
+                exit -1
+        }       
+}
+
+send "perf_ipc.bin\n"
+expect {
+        "cycles" {
+                # success
+                set lines [split $expect_out(buffer) \n]
+                set line_num [llength $lines]
+                set content [lindex $lines [expr {$line_num - 1}]]
+                regexp {[0-9]+} $content cycles
+                if {$cycles > 1000} {
+                    puts "cycle is $cycles\n"
+                    exit -1
+                }
+        }
+        timeout {
+                exit -1
+        }
+}
+
+send "ttcp.bin -r -s -p 6666\n"
+sleep 1
+send "ttcp.bin -t -l 8192 -v -T -s -p 6666 127.0.0.1\n"
+expect {
+        "real seconds" {
+                # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+sleep 1
+
+puts "Test OK."

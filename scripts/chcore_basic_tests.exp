@@ -1,0 +1,72 @@
+#!/usr/bin/expect -f
+
+source [file join [file dirname $argv0] libtest.tcl]
+
+set timeout 180
+
+# XXX: Don't know x86 or aarch64 (we can update simulate script)
+spawn bash -c "./build/simulate.sh | ./scripts/format_output.py"
+
+
+# Run boot and print error msg
+if {[catch boot errmsg]} {
+    puts $errmsg
+    exit -1
+}
+
+sleep 5
+
+# Only run fast function tests here
+# Boot lwip tcp server
+send "test_net_server.bin\n"
+expect {
+        "LWIP tcp server up!" {
+                # Boot lwip tcp client
+                send "test_net_client.bin\n"
+                expect {
+                        "LWIP network test finished!" {
+                                # success
+                        }
+                        timeout {
+                                exit -1
+                        }
+                }
+        }
+        timeout {
+                exit -1
+        }
+}
+
+# Test dynamic loader
+send "hello_dl.bin\n"
+expect {
+	"foo: 10" {
+
+	}
+	timeout {
+		exit -1
+	}
+}
+
+send "hello_world.bin\n"
+expect {
+	": /hello_world.bin" {
+
+	}
+	timeout {
+		exit -1
+	}
+}
+
+# Test concurrent IPC register and call
+send "test_ipc.bin\n"
+expect {
+	"all 32 threads done" {
+
+	}
+	timeout {
+		exit -1
+	}
+}
+
+puts "Test OK."

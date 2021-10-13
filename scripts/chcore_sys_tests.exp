@@ -1,0 +1,203 @@
+#!/usr/bin/expect -f
+
+source [file join [file dirname $argv0] libtest.tcl]
+
+set timeout 600
+
+# XXX: Don't know x86 or aarch64 (we can update simulate script)
+spawn bash -c "./build/simulate.sh | ./scripts/format_output.py"
+
+# Run test and print error msg
+if {[catch boot errmsg]} {
+    puts $errmsg
+    exit -1
+}
+
+sleep 5
+
+
+# Test lwip network
+# Boot lwip tcp server
+send "test_net_server.bin\n"
+expect {
+        "LWIP tcp server up!" {
+        }
+        timeout {
+                exit -1
+        }
+}
+
+sleep 1
+
+send "test_net_client.bin 16\n"
+expect {
+        "LWIP network test finished!" {
+        # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+# Test basic ipc
+send "client.bin\n"
+expect {
+        "exit now." {
+                # success 
+        }
+        timeout {
+                exit -1
+        }
+}
+
+# Test sched
+send "test_sched.bin\n"
+expect {
+        "test_sched done" {
+        }
+        timeout {
+                exit -1
+        }
+}
+
+# Test sched
+send "test_fpu.bin\n"
+expect {
+        "test_fpu done" {
+        }
+        timeout {
+                exit -1
+        }
+}
+
+# Poll-related tests
+send "epoll_server.bin\n"
+expect {
+        "LWIP epoll server up" {
+                # Boot lwip tcp client
+                send "poll_client.bin\n"
+                expect {
+                        "LWIP epoll server done" {
+                                # success
+                        }
+                        timeout {
+                                exit -1
+                        }
+                }
+        }
+        timeout {
+                exit -1
+        }
+}
+
+send "poll_server.bin\n"
+expect {
+        "LWIP poll server up" {
+                # Boot lwip poll client
+                send "poll_client.bin\n"
+                expect {
+                        "LWIP poll server done" {
+                                # success
+                        }
+                        timeout {
+                                exit -1
+                        }
+                }
+        }
+        timeout {
+                exit -1
+        }
+}
+
+# Notfication-related synchronizations:
+# notification, semaphore, pthread_cond
+send "test_notifc.bin\n"
+expect {
+        "notifc test success" {
+                # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+expect {
+        "sem test success" {
+                # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+expect {
+        "cond test success" {
+                # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+# Pthread tests:
+send "test_pthread.bin\n"
+expect {
+        "Pthread test finished!" {
+                # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+# FS tests:
+send "test_fs.bin\n"
+expect {
+        "FS test finished!" {
+                # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+send "test_eventfd.bin\n"
+expect {
+        "Finish eventfd test!" {
+                # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+send "test_sleep.bin\n"
+expect {
+        "timeout notification complete" {
+                # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+expect {
+        "nanosleep complete" {
+                # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+send "timerfd.bin\n"
+expect {
+        "timerfd finished!" {
+                # success
+        }
+        timeout {
+                exit -1
+        }
+}
+
+puts "Test OK."
